@@ -13,12 +13,3 @@ A simple Rust library to connect to Google Calendar. It lets you log in, create 
 4. Download the JSON file and save it in your project folder as `credentials.json`.
 
 ---
-
-### 2. Add to `Cargo.toml`
-
-Add this to your `Cargo.toml` file:
-
-```toml
-[dependencies]
-tokio = { version = "1", features = ["full"] }
-easy-gcalendar = "0.1"
