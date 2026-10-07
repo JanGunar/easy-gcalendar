@@ -2,6 +2,14 @@
 name = "easy-gcalendar"
 version = "0.1.0"
 edition = "2024"
+description = "An asynchronous Rust client for the Google Calendar API"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/JanGunar/easy-gcalendar"
+homepage = "https://github.com/JanGunar/easy-gcalendar"
+documentation = "https://docs.rs/easy-gcalendar"
+keywords = ["google-calendar", "calendar", "google-api", "oauth", "async"]
+categories = ["api-bindings", "web-programming::http-client"]
 
 [dependencies]
 chrono = "0.4.45"
@@ -12,3 +20,6 @@ tokio = { version = "1.53.1", features = ["full"] }
 yup-oauth2 = "12.1.2"
 urlencoding = "2.1.3"
 thiserror = "2.0.20"
+
+[dev-dependencies]
+wiremock = "0.6"
