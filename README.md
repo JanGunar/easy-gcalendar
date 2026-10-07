@@ -1,49 +1,45 @@
 # easy-gcalendar
 
-<<<<<<< HEAD
-A simple Rust library to connect to Google Calendar. It lets you log in, create events, list upcoming events, update, and delete them without dealing with raw API calls.
+An asynchronous Rust client for the Google Calendar API.
 
----
-
-## 🚀 Quick Start
-
-### 1. Get your Google Credentials
-1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
-2. Create a project and enable the **Google Calendar API**.
-3. Create **OAuth 2.0 Credentials** (Application type: *Desktop App*).
-4. Download the JSON file and save it in your project folder as `credentials.json`.
-
----
-=======
-An asynchronous Rust client library that provides a simplified, high-level
-interface for Google Calendar API interactions.
-
-## Project
-
-- **Technology:** Rust, HTTP (`reqwest`), `serde`, Google Calendar API
-- **Focus:** OAuth authentication and CRUD operations for calendar events
-
-The library is designed as a clean abstraction layer: applications can create,
-read, update, and delete events without managing raw Google Calendar HTTP
-requests.
+The library handles OAuth authentication, HTTP requests, JSON serialization,
+pagination, and API errors so applications can work with calendar events
+through a small Rust API.
 
 ## Features
 
 - OAuth 2.0 authentication with cached tokens
-- List upcoming events or events within a time range
+- List upcoming events or events in a time range
 - Search events by text
 - Create all-day or timed events
-- Read individual events
-- Update selected event fields
-- Delete events
-- Typed errors for unsuccessful Google API responses
-- Automatic pagination across Google Calendar result pages
+- Read, update, and delete events
+- Automatic pagination
+- Typed client errors
+- Configurable token storage
+- Mock HTTP integration tests
+
+## Setup
+
+1. Open the [Google Cloud Console](https://console.cloud.google.com/).
+2. Create a project and enable the Google Calendar API.
+3. Create OAuth 2.0 credentials for a desktop application.
+4. Download the credentials file as `credentials.json`.
+
+Keep `credentials.json` and the generated `tokens.json` out of version
+control. They are already listed in `.gitignore`.
 
 ## Usage
 
-Create an OAuth client credentials file named `credentials.json` in the
-application's working directory, then enable the Google Calendar API for the
-associated Google Cloud project:
+Add the crate and Tokio runtime to your application:
+
+```toml
+[dependencies]
+easy-gcalendar = "0.1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+```
+
+The following example lists events and creates an all-day event. Set
+`START_DATE` and `END_DATE` to valid `YYYY-MM-DD` values before running it:
 
 ```rust,no_run
 use easy_gcalendar::CalendarClient;
@@ -60,12 +56,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let created = calendar
-        .create_new_event(
-            "Team planning",
-            start,
-            end,
-            Some("Planning session".to_owned()),
-        )
+        .create_new_event("Team planning", start, end, None)
         .await?;
     println!("Created event: {created:?}");
 
@@ -73,35 +64,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-Add the crate and Tokio runtime to an application with:
+Run the included example with:
 
-```toml
-[dependencies]
-easy-gcalendar = "0.1"
-tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+```bash
+START_DATE="YYYY-MM-DD" END_DATE="YYYY-MM-DD" cargo run --example basic
 ```
 
-On first use, the OAuth flow opens a browser for authorization and stores the
-resulting token in `tokens.json`. Keep both credential and token files out of
-version control.
+On the first run, the OAuth flow opens a browser and stores the token in
+`tokens.json`. Use `CalendarClient::new_with_token_path` to choose a different
+token file.
 
-Use `CalendarClient::new_with_token_path` when the token should be stored
-somewhere other than `tokens.json`. Create and update methods return the
-server-created or server-updated `Event`. For all-day updates, use
-`update_event_with_dates` with `DateInfo`; `update_event` remains a convenient
-helper for timed values.
+Applications that manage OAuth themselves can use
+`CalendarClient::with_token`. It also accepts an API base URL, which is useful
+for testing against a mock server.
+
+## Current scope
 
 The client currently targets the authenticated user's primary calendar. It
-does not yet provide recurring-event management, incremental synchronization,
+does not provide recurring-event management, incremental synchronization,
 batch requests, or automatic retry and backoff.
-
-For applications that already manage OAuth, `CalendarClient::with_token`
-accepts a bearer token and an API base URL. The latter also makes the client
-straightforward to exercise against a mock server in tests.
 
 ## Development
 
-Run the same checks used by CI before publishing:
+Run the project checks locally:
 
 ```bash
 cargo fmt --all -- --check
@@ -114,4 +99,3 @@ cargo publish --dry-run
 ## License
 
 Licensed under the MIT License.
->>>>>>> a5a4c4f (Prepare crate for publication)
