@@ -1,36 +1,30 @@
 # easy-gcalendar
 
-An asynchronous Rust client for the Google Calendar API.
+Small async Rust client for the Google Calendar API. I wrote it because I wanted to list, search and create events without dealing with OAuth and pagination by hand.
 
-The library handles OAuth authentication, HTTP requests, JSON serialization,
-pagination, and API errors so applications can work with calendar events
-through a small Rust API.
+It handles the OAuth flow (tokens are cached), pagination and API errors, so you just call methods on a `CalendarClient`.
 
-## Features
+## What it can do
 
-- OAuth 2.0 authentication with cached tokens
-- List upcoming events or events in a time range
-- Search events by text
-- Create all-day or timed events
-- Read, update, and delete events
-- Automatic pagination
-- Typed client errors
-- Configurable token storage
-- Mock HTTP integration tests
+- list upcoming events or events in a time range
+- search events by text
+- create all-day or timed events
+- read, update and delete events
+- use your own token file location
+
+Tests run against a mock HTTP server, so they don't touch a real calendar.
 
 ## Setup
 
-1. Open the [Google Cloud Console](https://console.cloud.google.com/).
-2. Create a project and enable the Google Calendar API.
-3. Create OAuth 2.0 credentials for a desktop application.
-4. Download the credentials file as `credentials.json`.
+You need your own Google credentials:
 
-Keep `credentials.json` and the generated `tokens.json` out of version
-control. They are already listed in `.gitignore`.
+1. Create a project in the [Google Cloud Console](https://console.cloud.google.com/) and enable the Google Calendar API.
+2. Create OAuth 2.0 credentials for a desktop app.
+3. Download them as `credentials.json`.
+
+Don't commit `credentials.json` or `tokens.json` (both are in `.gitignore`).
 
 ## Usage
-
-Add the crate and Tokio runtime to your application:
 
 ```toml
 [dependencies]
@@ -38,10 +32,7 @@ easy-gcalendar = "0.1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
-The following example lists events and creates an all-day event. Set
-`START_DATE` and `END_DATE` to valid `YYYY-MM-DD` values before running it:
-
-```rust,no_run
+```rust
 use easy_gcalendar::CalendarClient;
 
 #[tokio::main]
@@ -64,38 +55,31 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-Run the included example with:
+Dates are `YYYY-MM-DD`. To try the bundled example:
 
-```bash
-START_DATE="YYYY-MM-DD" END_DATE="YYYY-MM-DD" cargo run --example basic
+```
+START_DATE="2026-10-10" END_DATE="2026-10-11" cargo run --example basic
 ```
 
-On the first run, the OAuth flow opens a browser and stores the token in
-`tokens.json`. Use `CalendarClient::new_with_token_path` to choose a different
-token file.
+On the first run a browser window opens for the OAuth login and the token is saved to `tokens.json`. Use `CalendarClient::new_with_token_path` if you want it somewhere else.
 
-Applications that manage OAuth themselves can use
-`CalendarClient::with_token`. It also accepts an API base URL, which is useful
-for testing against a mock server.
+If you handle OAuth yourself, use `CalendarClient::with_token`. It also takes a base URL, which is handy for testing against a mock server.
 
-## Current scope
+## Limitations
 
-The client currently targets the authenticated user's primary calendar. It
-does not provide recurring-event management, incremental synchronization,
-batch requests, or automatic retry and backoff.
+- works only with the logged-in user's primary calendar
+- no recurring events
+- no incremental sync or batch requests
+- no automatic retry/backoff
 
 ## Development
 
-Run the project checks locally:
-
-```bash
+```
 cargo fmt --all -- --check
 cargo clippy --all-targets --all-features -- -D warnings
 cargo test --all-features
-cargo doc --no-deps
-cargo publish --dry-run
 ```
 
 ## License
 
-Licensed under the MIT License.
+MIT
